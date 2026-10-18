@@ -1,0 +1,1 @@
+Rate limiting protects a service from abuse by capping how many requests a client can make in a time window. A token bucket allows short bursts while enforcing an average rate. Clients that exceed the limit receive a 429 response with a header saying when to retry. Counters are usually kept in Redis so all servers share them.

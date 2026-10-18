@@ -1,0 +1,1 @@
+Git stores history as a graph of commits. A branch is a movable pointer to a commit, so creating one is instant. Merging combines two lines of work, while rebasing replays commits on top of another branch to keep a linear history. Never rewrite commits that teammates have already pulled.

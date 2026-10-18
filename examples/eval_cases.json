@@ -1,0 +1,8 @@
+[
+  {"question": "How do workers get jobs from Redis?", "document": "celery"},
+  {"question": "retry failed tasks with backoff", "document": "celery"},
+  {"question": "How do I see whether a query uses an index?", "document": "postgresql"},
+  {"question": "what does vacuum do", "document": "postgresql"},
+  {"question": "how to invalidate cache entries", "document": "caching"},
+  {"question": "version in the cache key", "document": "caching"}
+]

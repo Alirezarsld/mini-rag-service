@@ -1,0 +1,1 @@
+Celery is a distributed task queue for Python. Worker processes consume jobs from a message broker such as Redis or RabbitMQ. Failed tasks can be retried with exponential backoff, and the beat scheduler triggers periodic jobs. Tasks should be idempotent so a retry never causes a duplicate side effect.

@@ -1,0 +1,1 @@
+Docker packages an application and its dependencies into an image that runs the same way everywhere. A container is a running instance of an image. A Dockerfile lists the build steps, and layers are cached so unchanged steps are not rebuilt. Volumes keep data after a container is removed.

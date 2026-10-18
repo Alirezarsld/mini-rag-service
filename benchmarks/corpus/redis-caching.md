@@ -1,0 +1,1 @@
+A cache keeps computed results in fast memory so repeated requests are cheap. The hard part is invalidation: entries must expire or be replaced when the underlying data changes. Adding a data version to every key makes older entries unreachable without deleting them. A time to live bounds how stale a value can become.

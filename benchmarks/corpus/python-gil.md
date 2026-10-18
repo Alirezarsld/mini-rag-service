@@ -1,0 +1,1 @@
+The global interpreter lock lets only one thread run Python bytecode at a time. It protects the interpreter's memory management but limits CPU-bound threads. Input and output bound programs still benefit from threads because the lock is released while waiting. For CPU-bound work use multiple processes instead.

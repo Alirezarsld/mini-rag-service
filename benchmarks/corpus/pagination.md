@@ -1,0 +1,1 @@
+Pagination splits a large result into pages so responses stay small. Offset pagination is simple but gets slow and inconsistent on large tables when rows are inserted. Cursor pagination returns an opaque token that marks the position of the last item, which stays fast and stable. Always cap the maximum page size.

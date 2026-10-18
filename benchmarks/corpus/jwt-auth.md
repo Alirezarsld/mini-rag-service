@@ -1,0 +1,1 @@
+A JSON Web Token is a signed string that carries claims about a user. The server verifies the signature instead of looking up a session, which keeps the API stateless. Tokens should be short lived, and a refresh token is used to obtain a new one. Never store secrets in the payload because it is only encoded, not encrypted.

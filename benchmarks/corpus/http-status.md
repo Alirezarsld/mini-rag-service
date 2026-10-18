@@ -1,0 +1,1 @@
+HTTP status codes tell a client what happened. 200 means success and 201 means a resource was created. 404 means the resource does not exist, while 401 means the caller is not authenticated and 403 means it is authenticated but not allowed. 429 means too many requests, and 500 means a server error.

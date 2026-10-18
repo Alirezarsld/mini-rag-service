@@ -1,0 +1,1 @@
+PostgreSQL is a relational database. An index speeds up reads but slows down writes. EXPLAIN ANALYZE shows how a query is executed and whether an index is used. VACUUM reclaims space from dead rows, and autovacuum normally runs it in the background. A connection pooler keeps the number of open connections small.

@@ -1,0 +1,282 @@
+[
+ {
+  "question": "How do workers get jobs from a Redis broker?",
+  "document": "celery",
+  "kind": "lexical"
+ },
+ {
+  "question": "retry failed tasks with exponential backoff",
+  "document": "celery",
+  "kind": "lexical"
+ },
+ {
+  "question": "what does the beat scheduler do",
+  "document": "celery",
+  "kind": "lexical"
+ },
+ {
+  "question": "how can I see whether a query uses an index",
+  "document": "postgresql",
+  "kind": "lexical"
+ },
+ {
+  "question": "what does vacuum reclaim",
+  "document": "postgresql",
+  "kind": "lexical"
+ },
+ {
+  "question": "why use a connection pooler",
+  "document": "postgresql",
+  "kind": "lexical"
+ },
+ {
+  "question": "how does a data version in the key help invalidation",
+  "document": "redis-caching",
+  "kind": "lexical"
+ },
+ {
+  "question": "what is a time to live for a cache",
+  "document": "redis-caching",
+  "kind": "lexical"
+ },
+ {
+  "question": "what is the difference between an image and a container",
+  "document": "docker",
+  "kind": "lexical"
+ },
+ {
+  "question": "how are docker layers cached",
+  "document": "docker",
+  "kind": "lexical"
+ },
+ {
+  "question": "merge versus rebase",
+  "document": "git-branching",
+  "kind": "lexical"
+ },
+ {
+  "question": "is creating a branch expensive",
+  "document": "git-branching",
+  "kind": "lexical"
+ },
+ {
+  "question": "what does a 403 status mean",
+  "document": "http-status",
+  "kind": "lexical"
+ },
+ {
+  "question": "which code means the resource was created",
+  "document": "http-status",
+  "kind": "lexical"
+ },
+ {
+  "question": "why are tokens short lived with a refresh token",
+  "document": "jwt-auth",
+  "kind": "lexical"
+ },
+ {
+  "question": "is the jwt payload encrypted",
+  "document": "jwt-auth",
+  "kind": "lexical"
+ },
+ {
+  "question": "does the global interpreter lock affect threads",
+  "document": "python-gil",
+  "kind": "lexical"
+ },
+ {
+  "question": "what should I use for cpu bound work",
+  "document": "python-gil",
+  "kind": "lexical"
+ },
+ {
+  "question": "offset versus cursor pagination",
+  "document": "pagination",
+  "kind": "lexical"
+ },
+ {
+  "question": "why cap the page size",
+  "document": "pagination",
+  "kind": "lexical"
+ },
+ {
+  "question": "what is a token bucket",
+  "document": "rate-limiting",
+  "kind": "lexical"
+ },
+ {
+  "question": "what does a 429 response contain",
+  "document": "rate-limiting",
+  "kind": "lexical"
+ },
+ {
+  "question": "how do I run background work outside the web process",
+  "document": "celery",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "what happens when an asynchronous job crashes and needs another attempt",
+  "document": "celery",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "my SELECT statements are slow, what can I do",
+  "document": "postgresql",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "how do I stop thousands of clients from overwhelming the database",
+  "document": "postgresql",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "how do I make sure users never see outdated stored answers",
+  "document": "redis-caching",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "why do stored copies of results go stale",
+  "document": "redis-caching",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "how do I ship my app so it behaves identically on every machine",
+  "document": "docker",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "what keeps my files after the box is deleted",
+  "document": "docker",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "how do I keep my commit history in a straight line",
+  "document": "git-branching",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "is it safe to alter history my colleagues already downloaded",
+  "document": "git-branching",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "what does the server answer when the page was not found",
+  "document": "http-status",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "user is logged in but lacks permission, what do I return",
+  "document": "http-status",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "how can an API recognise users without keeping sessions",
+  "document": "jwt-auth",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "can anyone read the data inside a signed token",
+  "document": "jwt-auth",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "why do my python threads not use all the processor cores",
+  "document": "python-gil",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "can waiting on the network be parallelised in python",
+  "document": "python-gil",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "how should I return a huge list without sending everything at once",
+  "document": "pagination",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "why do lists skip items when new rows arrive",
+  "document": "pagination",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "how do I stop one client from hammering my API",
+  "document": "rate-limiting",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "where should the request counters live across many servers",
+  "document": "rate-limiting",
+  "kind": "paraphrase"
+ },
+ {
+  "question": "distribted taks queue",
+  "document": "celery",
+  "kind": "typo"
+ },
+ {
+  "question": "excponential backof retries",
+  "document": "celery",
+  "kind": "typo"
+ },
+ {
+  "question": "postgresql indxes and writtes",
+  "document": "postgresql",
+  "kind": "typo"
+ },
+ {
+  "question": "vaccum dead rows",
+  "document": "postgresql",
+  "kind": "typo"
+ },
+ {
+  "question": "dockr containr images",
+  "document": "docker",
+  "kind": "typo"
+ },
+ {
+  "question": "imutable layrs cached",
+  "document": "docker",
+  "kind": "typo"
+ },
+ {
+  "question": "refrsh tokn expirey",
+  "document": "jwt-auth",
+  "kind": "typo"
+ },
+ {
+  "question": "signatre verifcation",
+  "document": "jwt-auth",
+  "kind": "typo"
+ },
+ {
+  "question": "ایندکس‌گذاری چه تاثیری روی سرعت دارد",
+  "document": "persian-database",
+  "kind": "persian"
+ },
+ {
+  "question": "چرا باید نسخه پشتیبان تهیه کرد",
+  "document": "persian-database",
+  "kind": "persian"
+ },
+ {
+  "question": "پايگاه داده اطلاعات را چگونه ذخيره مي‌كند",
+  "document": "persian-database",
+  "kind": "persian"
+ },
+ {
+  "question": "رمز عبور را چگونه نگهداری کنیم",
+  "document": "persian-security",
+  "kind": "persian"
+ },
+ {
+  "question": "تایید دو مرحله ای چه کمکی می کند",
+  "document": "persian-security",
+  "kind": "persian"
+ },
+ {
+  "question": "احراز هويت يعني چه",
+  "document": "persian-security",
+  "kind": "persian"
+ }
+]
