@@ -1,11 +1,30 @@
+from dataclasses import asdict
+from pathlib import Path
+
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from dataclasses import asdict
 
 from . import selectors, services
 from .permissions import HasApiKey
 from .serializers import DocumentCreateSerializer, QuerySerializer, document_to_dict
+
+
+MAX_UPLOAD_BYTES = 1_000_000
+
+
+def _index(title: str, text: str, source: str = "") -> Response:
+    """Shared by the JSON and file-upload endpoints so both handle errors identically."""
+    try:
+        document = services.ingest_document(title=title[:200], text=text, source=source)
+    except services.DuplicateDocument as dup:
+        return Response({"detail": "This text is already indexed.",
+                         "document_id": dup.document.id}, status=status.HTTP_409_CONFLICT)
+    except ValueError as exc:
+        return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(document_to_dict(selectors.get_document(document.id)),
+                    status=status.HTTP_201_CREATED)
 
 
 class HealthView(APIView):
@@ -25,15 +44,30 @@ class DocumentListCreateView(APIView):
     def post(self, request):
         serializer = DocumentCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        return _index(**serializer.validated_data)
+
+
+class DocumentUploadView(APIView):
+    """``multipart/form-data`` with a UTF-8 ``file`` (.md/.txt) and an optional ``title``."""
+
+    permission_classes = [HasApiKey]
+    parser_classes = [MultiPartParser]
+
+    def post(self, request):
+        upload = request.FILES.get("file")
+        if upload is None:
+            return Response({"detail": "Send the text file in a 'file' field."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if upload.size > MAX_UPLOAD_BYTES:
+            return Response({"detail": "File is larger than 1 MB."},
+                            status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         try:
-            document = services.ingest_document(**serializer.validated_data)
-        except services.DuplicateDocument as dup:
-            return Response({"detail": "This text is already indexed.",
-                             "document_id": dup.document.id}, status=status.HTTP_409_CONFLICT)
-        except ValueError as exc:
-            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(document_to_dict(selectors.get_document(document.id)),
-                        status=status.HTTP_201_CREATED)
+            text = upload.read().decode("utf-8")
+        except UnicodeDecodeError:
+            return Response({"detail": "File must be UTF-8 text."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        title = request.data.get("title") or Path(upload.name).stem
+        return _index(title, text, source=upload.name)
 
 
 class DocumentDetailView(APIView):

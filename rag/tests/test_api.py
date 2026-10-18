@@ -2,6 +2,7 @@
 from unittest import mock
 
 from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.test import override_settings
 from rest_framework.test import APITestCase
@@ -94,6 +95,28 @@ class ApiTests(APITestCase):
         self.add("PostgreSQL", PG)
         after = self.client.post("/api/ask/", q, format="json").json()
         self.assertNotEqual(after["answer"], NO_ANSWER)
+
+    def upload(self, name, data, **extra):
+        return self.client.post("/api/documents/upload/",
+                                {"file": SimpleUploadedFile(name, data), **extra}, format="multipart")
+
+    def test_upload_indexes_a_text_file(self):
+        response = self.upload("celery-notes.md", CELERY.encode())
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["title"], "celery-notes")
+        self.assertEqual(response.json()["source"], "celery-notes.md")
+        found = self.client.post("/api/search/", {"query": "redis broker"}, format="json").json()
+        self.assertEqual(found["results"][0]["document_title"], "celery-notes")
+
+    def test_upload_rejects_bad_input(self):
+        self.assertEqual(self.client.post("/api/documents/upload/", {}, format="multipart").status_code, 400)
+        self.assertEqual(self.upload("x.txt", b"\xff\xfe\x00bad").status_code, 400)
+        self.assertEqual(self.upload("empty.txt", b"  \n").status_code, 400)
+        self.assertEqual(self.upload("big.txt", b"a " * 600_000).status_code, 413)
+
+    def test_upload_detects_duplicates(self):
+        self.upload("a.md", CELERY.encode())
+        self.assertEqual(self.upload("b.md", CELERY.encode()).status_code, 409)
 
     def test_duplicate_text_is_rejected_with_409(self):
         first = self.add("Celery", CELERY).json()

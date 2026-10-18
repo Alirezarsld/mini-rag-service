@@ -64,9 +64,10 @@ curl -s localhost:8000/api/search/ -H 'Content-Type: application/json' \
 curl -s localhost:8000/api/ask/ -H 'Content-Type: application/json' \
   -d '{"query": "What does VACUUM do?"}'
 
-# add a document
+# add a document (JSON) or upload a file
 curl -s localhost:8000/api/documents/ -H 'Content-Type: application/json' \
   -d '{"title": "Notes", "text": "Any text you want to be able to search."}'
+curl -s localhost:8000/api/documents/upload/ -F file=@examples/celery.md
 ```
 
 To use an LLM for answers: `export ANTHROPIC_API_KEY=...` (the model is set by `RAG_LLM_MODEL`).
@@ -98,6 +99,7 @@ docker compose up --build
 |---|---|---|
 | GET | `/api/health/` | Liveness probe |
 | GET / POST | `/api/documents/` | List / index a document (`title`, `text`, optional `source`) |
+| POST | `/api/documents/upload/` | Index a UTF-8 `.md`/`.txt` file (`multipart/form-data`, field `file`, optional `title`, max 1 MB) |
 | GET / DELETE | `/api/documents/<id>/` | Inspect / remove a document |
 | POST | `/api/search/` | `{query, top_k}` → ranked chunks with BM25 and vector scores |
 | POST | `/api/ask/` | `{query, top_k}` → `answer`, `citations`, `sources`, `used_llm`, `cached` |
