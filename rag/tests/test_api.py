@@ -51,6 +51,17 @@ class ApiTests(APITestCase):
         roles = list(Conversation.objects.get(pk=conversation_id).messages.values_list("role", flat=True))
         self.assertEqual(roles, ["user", "assistant"])
 
+    def test_follow_up_question_is_resolved_with_the_history(self):
+        self.add("PostgreSQL", PG)
+        self.add("Celery", CELERY)
+        conversation_id = self.client.post("/api/conversations/").json()["id"]
+        ask = lambda q: self.client.post(
+            "/api/ask/", {"query": q, "conversation_id": conversation_id}, format="json").json()
+        ask("What does VACUUM do?")
+        follow_up = ask("and what about dead tuples?")
+        self.assertEqual(follow_up["rewritten_query"], "What does VACUUM do? and what about dead tuples?")
+        self.assertEqual(follow_up["sources"][0]["document_title"], "PostgreSQL")
+
     def test_ask_without_a_conversation_stores_nothing(self):
         self.add("Celery", CELERY)
         response = self.client.post("/api/ask/", {"query": "redis broker workers"}, format="json")

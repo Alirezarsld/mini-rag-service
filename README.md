@@ -43,6 +43,7 @@ POST /api/documents/            POST /api/ask/
 | Re-ranking | Maximal Marginal Relevance removes near-duplicate passages |
 | Generation | Prompt with numbered sources; the model is told to answer only from them, cite as `[n]`, and ignore instructions found inside sources |
 | Claude API | Sources go in escaped `<source>` tags. A `refusal` stop reason is returned as "I don't know" (never replaced by extractive text), `max_tokens` marks the answer `truncated`, and a provider error falls back to an extractive answer with `llm_error` set and is never cached. Token `usage` is returned with every LLM answer |
+| Conversations | With a `conversation_id`, a short follow-up ("and how often?") is rewritten into a standalone question from the recent messages before retrieval: by Claude when a key is set, otherwise by a heuristic that prepends the previous question. The response includes `rewritten_query` when it changed |
 | Guards | Sources are wrapped in escaped `<source>` tags so document text cannot forge delimiters, invalid citations are stripped, answers are length-capped, an ungrounded question returns *"I don't know…"*, and an LLM failure degrades to an extractive answer |
 | Caching | Answers are cached per (question, corpus version); changing the corpus or the embedder makes old entries unreachable |
 | Ingestion | Duplicate text (after normalisation) is rejected with `409` |
@@ -132,7 +133,7 @@ docker compose up --build
 | GET / DELETE | `/api/documents/<id>/` | Inspect / remove a document |
 | POST | `/api/search/` | `{query, top_k}` → ranked chunks with BM25 and vector scores |
 | POST | `/api/conversations/` | Start a conversation → `{id}` |
-| POST | `/api/ask/` | `{query, top_k, conversation_id?}` → `answer`, `citations`, `sources`, `used_llm`, `llm_error`, `truncated`, `usage`, `cached` |
+| POST | `/api/ask/` | `{query, top_k, conversation_id?}` → `answer`, `citations`, `sources`, `used_llm`, `llm_error`, `truncated`, `usage`, `cached`, `rewritten_query?` |
 
 Set `RAG_API_KEY` to require an `X-API-Key` header on everything except `/api/health/`.
 

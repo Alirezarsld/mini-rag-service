@@ -7,6 +7,7 @@ from rag.chunking import chunk_text
 from rag.embeddings import HashingEmbedder, normalize, tokenize
 from rag.evaluation import evaluate
 from rag.generation import NO_ANSWER, build_prompt, generate_answer, sanitize_answer
+from rag.rewrite import rewrite_query
 from rag.retrieval import (ChunkRecord, HybridRetriever, mmr_rerank,
                            reciprocal_rank_fusion)
 
@@ -229,6 +230,34 @@ class GenerationTests(unittest.TestCase):
     def test_sanitize_caps_length(self):
         text, _ = sanitize_answer("x" * 5000, 1)
         self.assertLessEqual(len(text), 2000)
+
+
+class RewriteTests(unittest.TestCase):
+    HISTORY = [("user", "What does VACUUM do?"), ("assistant", "It reclaims storage. [1]")]
+
+    def test_no_history_leaves_the_question_alone(self):
+        client = _FakeLLM("should not be used")
+        self.assertEqual(rewrite_query("and how often?", [], client=client, model="m"), "and how often?")
+        self.assertIsNone(client.last_request)
+
+    def test_heuristic_adds_previous_question_to_a_short_follow_up(self):
+        self.assertEqual(rewrite_query("and how often?", self.HISTORY),
+                         "What does VACUUM do? and how often?")
+
+    def test_heuristic_keeps_a_self_contained_question(self):
+        question = "How do workers get jobs from redis"
+        self.assertEqual(rewrite_query(question, self.HISTORY), question)
+
+    def test_llm_rewrite_is_used_and_tidied(self):
+        client = _FakeLLM("  How often does VACUUM run?\nExtra line")
+        out = rewrite_query("and how often?", self.HISTORY, client=client, model="m")
+        self.assertEqual(out, "How often does VACUUM run?")
+        self.assertIn("assistant: It reclaims storage", client.last_request["messages"][0]["content"])
+
+    def test_llm_failure_falls_back_to_the_heuristic(self):
+        client = _FakeLLM(error=RuntimeError("down"))
+        out = rewrite_query("and how often?", self.HISTORY, client=client, model="m")
+        self.assertEqual(out, "What does VACUUM do? and how often?")
 
 
 if __name__ == "__main__":

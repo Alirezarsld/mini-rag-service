@@ -11,6 +11,7 @@ from .chunking import chunk_text
 from .embeddings import get_embedder, normalize
 from .generation import generate_answer
 from .models import Chunk, Conversation, Document
+from .rewrite import HISTORY_MESSAGES, rewrite_query
 
 
 class DuplicateDocument(Exception):
@@ -90,12 +91,19 @@ def create_conversation() -> Conversation:
 
 
 def answer_question(query: str, top_k: int = 5, conversation: Conversation | None = None) -> dict:
-    """Answer a question; inside a conversation, also record the exchange."""
-    result = _answer(query, top_k)
+    """Answer a question; inside a conversation, resolve follow-ups and record the exchange."""
+    effective = query
+    if conversation is not None:
+        recent = list(conversation.messages.order_by("-id")[:HISTORY_MESSAGES])
+        history = [(m.role, m.content) for m in reversed(recent)]
+        effective = rewrite_query(query, history, client=_llm_client(), model=settings.RAG_LLM_MODEL)
+    result = _answer(effective, top_k)
     if conversation is not None:
         conversation.messages.create(role="user", content=query)
         conversation.messages.create(role="assistant", content=result["answer"])
         result = {**result, "conversation_id": str(conversation.id)}
+        if effective != query:
+            result["rewritten_query"] = effective
     return result
 
 
