@@ -4,6 +4,9 @@ A small, self-contained **retrieval-augmented generation** API built with Django
 Django REST Framework. Upload documents, search them with hybrid retrieval, and ask questions
 that are answered **only from your documents**, with citations.
 
+What sets it apart: first-class **Persian** text handling, and a **benchmark that reports its
+own weak spots** instead of only the flattering numbers (see *Retrieval quality*).
+
 It runs fully offline with no API key (extractive answers). Add an Anthropic API key to get
 LLM-written answers with the same retrieval and the same guards.
 
@@ -70,6 +73,29 @@ curl -s localhost:8000/api/documents/ -H 'Content-Type: application/json' \
   -d '{"title": "Notes", "text": "Any text you want to be able to search."}'
 curl -s localhost:8000/api/documents/upload/ -F file=@examples/celery.md
 ```
+
+### Example output
+
+Real answers from the retrieval core (default offline mode, no API key) over the bundled
+documents. English, from `examples/`:
+
+```
+Q: What does VACUUM do?
+A: VACUUM reclaims storage from dead tuples, and autovacuum normally handles it. [1]
+   → citation: postgresql.md
+```
+
+Persian, from `benchmarks/corpus/persian-*.md`, with Arabic/Persian letter forms and ZWNJ
+normalised:
+
+```
+Q: هش کردن گذرواژه چطور انجام می‌شود
+A: رمز عبور هرگز نباید به‌صورت متن ساده ذخیره شود و باید با یک تابع هش امن نگهداری شود. [1]
+   → citation: persian-security.md
+```
+
+In the API the same answer comes back as JSON from `POST /api/ask/` with `answer`,
+`citations`, `sources`, `used_llm`, `usage` and `cached`.
 
 To use an LLM for answers: `export ANTHROPIC_API_KEY=...` (the model is set by `RAG_LLM_MODEL`).
 
