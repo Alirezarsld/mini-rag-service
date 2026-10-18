@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 
@@ -27,3 +29,22 @@ class Chunk(models.Model):
 
     class Meta:
         ordering = ["document_id", "index"]
+
+
+class Conversation(models.Model):
+    """A chat session; its messages give follow-up questions their context."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Message(models.Model):
+    ROLES = [("user", "user"), ("assistant", "assistant")]
+
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
+    role = models.CharField(max_length=10, choices=ROLES)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]

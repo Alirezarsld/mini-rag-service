@@ -13,7 +13,7 @@ from io import StringIO
 
 from rag import selectors, services
 from rag.generation import NO_ANSWER
-from rag.models import Chunk
+from rag.models import Chunk, Conversation
 from rag.tests.test_core import _FakeLLM
 
 CELERY = "Celery is a distributed task queue. Workers consume jobs from a Redis broker."
@@ -33,6 +33,14 @@ class ApiTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("text/html", response["Content-Type"])
         self.assertIn(b"/api/ask/", response.content)
+
+    def test_conversation_keeps_messages_in_order_and_cascades(self):
+        conversation = Conversation.objects.create()
+        conversation.messages.create(role="user", content="first")
+        conversation.messages.create(role="assistant", content="second")
+        self.assertEqual([m.content for m in conversation.messages.all()], ["first", "second"])
+        conversation.delete()
+        self.assertEqual(Conversation.objects.count(), 0)
 
     def test_health(self):
         self.assertEqual(self.client.get("/api/health/").json(), {"status": "ok"})
