@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.models import Count, Max
 
 from .embeddings import get_embedder
-from .models import Chunk, Document
+from .models import Chunk, Conversation, Document
 from .retrieval import ChunkRecord, HybridRetriever
 
 _state: dict = {"version": None, "retriever": None}
@@ -32,6 +32,10 @@ def list_documents():
 
 def get_document(pk: int):
     return Document.objects.annotate(chunk_count=Count("chunks")).filter(pk=pk).first()
+
+
+def get_conversation(pk) -> Conversation | None:
+    return Conversation.objects.filter(pk=pk).first()
 
 
 def get_retriever() -> HybridRetriever:

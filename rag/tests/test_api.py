@@ -42,6 +42,27 @@ class ApiTests(APITestCase):
         conversation.delete()
         self.assertEqual(Conversation.objects.count(), 0)
 
+    def test_ask_inside_a_conversation_records_the_exchange(self):
+        self.add("Celery", CELERY)
+        conversation_id = self.client.post("/api/conversations/").json()["id"]
+        body = {"query": "redis broker workers", "conversation_id": conversation_id}
+        response = self.client.post("/api/ask/", body, format="json")
+        self.assertEqual(response.json()["conversation_id"], conversation_id)
+        roles = list(Conversation.objects.get(pk=conversation_id).messages.values_list("role", flat=True))
+        self.assertEqual(roles, ["user", "assistant"])
+
+    def test_ask_without_a_conversation_stores_nothing(self):
+        self.add("Celery", CELERY)
+        response = self.client.post("/api/ask/", {"query": "redis broker workers"}, format="json")
+        self.assertNotIn("conversation_id", response.json())
+        self.assertEqual(Conversation.objects.count(), 0)
+
+    def test_unknown_conversation_is_404(self):
+        body = {"query": "anything", "conversation_id": "7c1f3a52-0000-4000-8000-000000000000"}
+        self.assertEqual(self.client.post("/api/ask/", body, format="json").status_code, 404)
+        self.assertEqual(self.client.post("/api/ask/", {"query": "x", "conversation_id": "nope"},
+                                          format="json").status_code, 400)
+
     def test_health(self):
         self.assertEqual(self.client.get("/api/health/").json(), {"status": "ok"})
 

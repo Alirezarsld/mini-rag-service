@@ -8,5 +8,6 @@ urlpatterns = [
     path("documents/upload/", views.DocumentUploadView.as_view()),
     path("documents/<int:pk>/", views.DocumentDetailView.as_view()),
     path("search/", views.SearchView.as_view()),
+    path("conversations/", views.ConversationCreateView.as_view()),
     path("ask/", views.AskView.as_view()),
 ]

@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from . import selectors, services
 from .permissions import HasApiKey
-from .serializers import DocumentCreateSerializer, QuerySerializer, document_to_dict
+from .serializers import AskSerializer, DocumentCreateSerializer, QuerySerializer, document_to_dict
 
 
 MAX_UPLOAD_BYTES = 1_000_000
@@ -106,11 +106,24 @@ class SearchView(APIView):
         return Response({"results": [asdict(h) for h in hits]})
 
 
+class ConversationCreateView(APIView):
+    permission_classes = [HasApiKey]
+
+    def post(self, request):
+        conversation = services.create_conversation()
+        return Response({"id": str(conversation.id)}, status=status.HTTP_201_CREATED)
+
+
 class AskView(APIView):
     permission_classes = [HasApiKey]
 
     def post(self, request):
-        serializer = QuerySerializer(data=request.data)
+        serializer = AskSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(services.answer_question(serializer.validated_data["query"],
-                                                 serializer.validated_data["top_k"]))
+        data = serializer.validated_data
+        conversation = None
+        if "conversation_id" in data:
+            conversation = selectors.get_conversation(data["conversation_id"])
+            if conversation is None:
+                return Response({"detail": "Conversation not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(services.answer_question(data["query"], data["top_k"], conversation))

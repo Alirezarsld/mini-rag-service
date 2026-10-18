@@ -12,6 +12,11 @@ class QuerySerializer(serializers.Serializer):
     top_k = serializers.IntegerField(min_value=1, max_value=20, default=5)
 
 
+class AskSerializer(QuerySerializer):
+    # Optional: send the id from POST /api/conversations/ to keep the exchange in a session.
+    conversation_id = serializers.UUIDField(required=False)
+
+
 def document_to_dict(doc) -> dict:
     return {
         "id": doc.id,

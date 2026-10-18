@@ -131,7 +131,8 @@ docker compose up --build
 | POST | `/api/documents/upload/` | Index a UTF-8 `.md`/`.txt` file (`multipart/form-data`, field `file`, optional `title`, max 1 MB) |
 | GET / DELETE | `/api/documents/<id>/` | Inspect / remove a document |
 | POST | `/api/search/` | `{query, top_k}` → ranked chunks with BM25 and vector scores |
-| POST | `/api/ask/` | `{query, top_k}` → `answer`, `citations`, `sources`, `used_llm`, `llm_error`, `truncated`, `usage`, `cached` |
+| POST | `/api/conversations/` | Start a conversation → `{id}` |
+| POST | `/api/ask/` | `{query, top_k, conversation_id?}` → `answer`, `citations`, `sources`, `used_llm`, `llm_error`, `truncated`, `usage`, `cached` |
 
 Set `RAG_API_KEY` to require an `X-API-Key` header on everything except `/api/health/`.
 

@@ -10,7 +10,7 @@ from . import selectors
 from .chunking import chunk_text
 from .embeddings import get_embedder, normalize
 from .generation import generate_answer
-from .models import Chunk, Document
+from .models import Chunk, Conversation, Document
 
 
 class DuplicateDocument(Exception):
@@ -85,7 +85,21 @@ def _llm_client():
     return anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY, timeout=settings.RAG_LLM_TIMEOUT)
 
 
-def answer_question(query: str, top_k: int = 5) -> dict:
+def create_conversation() -> Conversation:
+    return Conversation.objects.create()
+
+
+def answer_question(query: str, top_k: int = 5, conversation: Conversation | None = None) -> dict:
+    """Answer a question; inside a conversation, also record the exchange."""
+    result = _answer(query, top_k)
+    if conversation is not None:
+        conversation.messages.create(role="user", content=query)
+        conversation.messages.create(role="assistant", content=result["answer"])
+        result = {**result, "conversation_id": str(conversation.id)}
+    return result
+
+
+def _answer(query: str, top_k: int) -> dict:
     """Retrieve, generate, and cache the result per (question, corpus version)."""
     version = selectors.corpus_version()
     raw_key = f"{version}|{top_k}|{settings.RAG_LLM_MODEL}|{query.strip().lower()}"
