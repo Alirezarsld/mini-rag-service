@@ -68,3 +68,5 @@ RAG_CHUNK_OVERLAP = int(os.environ.get("RAG_CHUNK_OVERLAP", "120"))
 RAG_ANSWER_CACHE_SECONDS = int(os.environ.get("RAG_ANSWER_CACHE_SECONDS", "3600"))
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")  # empty = extractive answers only
 RAG_LLM_MODEL = os.environ.get("RAG_LLM_MODEL", "claude-sonnet-5-5")
+RAG_LLM_MAX_TOKENS = int(os.environ.get("RAG_LLM_MAX_TOKENS", "600"))
+RAG_LLM_TIMEOUT = float(os.environ.get("RAG_LLM_TIMEOUT", "30"))

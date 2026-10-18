@@ -87,6 +87,24 @@ class ApiTests(APITestCase):
         self.assertFalse(first["cached"])
         self.assertTrue(second["cached"])
 
+    def test_provider_errors_are_reported_and_not_cached(self):
+        self.add("Celery", CELERY)
+        broken = _FakeLLM(error=RuntimeError("overloaded"))
+        with mock.patch("rag.services._llm_client", return_value=broken):
+            first = self.client.post("/api/ask/", {"query": "who reads jobs"}, format="json").json()
+            second = self.client.post("/api/ask/", {"query": "who reads jobs"}, format="json").json()
+        self.assertEqual(first["llm_error"], "RuntimeError")
+        self.assertFalse(first["used_llm"])
+        self.assertNotEqual(first["answer"], NO_ANSWER)   # extractive fallback still answers
+        self.assertFalse(second["cached"])                # a transient failure is never cached
+
+    def test_ask_reports_usage(self):
+        self.add("Celery", CELERY)
+        with mock.patch("rag.services._llm_client", return_value=_FakeLLM("Redis [1].")):
+            body = self.client.post("/api/ask/", {"query": "who reads jobs"}, format="json").json()
+        self.assertEqual(body["usage"]["output_tokens"], 15)
+        self.assertFalse(body["truncated"])
+
     def test_cache_is_invalidated_when_corpus_changes(self):
         self.add("Celery", CELERY)
         q = {"query": "vacuum dead tuples"}

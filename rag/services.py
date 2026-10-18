@@ -81,7 +81,8 @@ def _llm_client():
         return None
     import anthropic
 
-    return anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY, timeout=30.0)
+    # The SDK retries connection errors, 429 and 5xx with backoff (max_retries, default 2).
+    return anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY, timeout=settings.RAG_LLM_TIMEOUT)
 
 
 def answer_question(query: str, top_k: int = 5) -> dict:
@@ -94,14 +95,20 @@ def answer_question(query: str, top_k: int = 5) -> dict:
         return {**cached, "cached": True}
 
     hits = search(query, top_k)
-    answer = generate_answer(query, hits, client=_llm_client(), model=settings.RAG_LLM_MODEL)
+    answer = generate_answer(query, hits, client=_llm_client(), model=settings.RAG_LLM_MODEL,
+                             max_tokens=settings.RAG_LLM_MAX_TOKENS)
     by_id = {h.chunk_id: h for h in hits}
     result = {
         "answer": answer.text,
         "used_llm": answer.used_llm,
+        "llm_error": answer.llm_error,
+        "truncated": answer.truncated,
+        "usage": answer.usage,
         "citations": [asdict(by_id[i]) for i in answer.citations if i in by_id],
         "sources": [asdict(h) for h in hits],
         "cached": False,
     }
-    cache.set(cache_key, result, settings.RAG_ANSWER_CACHE_SECONDS)
+    # A provider error is transient: never cache the fallback answer it produced.
+    if not answer.llm_error:
+        cache.set(cache_key, result, settings.RAG_ANSWER_CACHE_SECONDS)
     return result

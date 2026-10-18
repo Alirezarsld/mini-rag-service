@@ -39,6 +39,7 @@ POST /api/documents/            POST /api/ask/
 | Fusion | Reciprocal Rank Fusion merges the two rankings without needing comparable scores |
 | Re-ranking | Maximal Marginal Relevance removes near-duplicate passages |
 | Generation | Prompt with numbered sources; the model is told to answer only from them, cite as `[n]`, and ignore instructions found inside sources |
+| Claude API | Sources go in escaped `<source>` tags. A `refusal` stop reason is returned as "I don't know" (never replaced by extractive text), `max_tokens` marks the answer `truncated`, and a provider error falls back to an extractive answer with `llm_error` set and is never cached. Token `usage` is returned with every LLM answer |
 | Guards | Sources are wrapped in escaped `<source>` tags so document text cannot forge delimiters, invalid citations are stripped, answers are length-capped, an ungrounded question returns *"I don't know…"*, and an LLM failure degrades to an extractive answer |
 | Caching | Answers are cached per (question, corpus version); changing the corpus or the embedder makes old entries unreachable |
 | Ingestion | Duplicate text (after normalisation) is rejected with `409` |
@@ -102,7 +103,7 @@ docker compose up --build
 | POST | `/api/documents/upload/` | Index a UTF-8 `.md`/`.txt` file (`multipart/form-data`, field `file`, optional `title`, max 1 MB) |
 | GET / DELETE | `/api/documents/<id>/` | Inspect / remove a document |
 | POST | `/api/search/` | `{query, top_k}` → ranked chunks with BM25 and vector scores |
-| POST | `/api/ask/` | `{query, top_k}` → `answer`, `citations`, `sources`, `used_llm`, `cached` |
+| POST | `/api/ask/` | `{query, top_k}` → `answer`, `citations`, `sources`, `used_llm`, `llm_error`, `truncated`, `usage`, `cached` |
 
 Set `RAG_API_KEY` to require an `X-API-Key` header on everything except `/api/health/`.
 
@@ -115,7 +116,9 @@ Set `RAG_API_KEY` to require an `X-API-Key` header on everything except `/api/he
 | `RAG_API_KEY` | empty | Enables API-key auth |
 | `RAG_EMBEDDER` | `hashing` | `hashing`, `sentence-transformers` or `st:<model>` |
 | `ANTHROPIC_API_KEY` | empty | Enables LLM answers |
-| `RAG_LLM_MODEL` | `claude-sonnet-5-5` | Model used for answers |
+| `RAG_LLM_MODEL` | `claude-sonnet-5-5` | Claude model ID used for answers |
+| `RAG_LLM_MAX_TOKENS` | `600` | `max_tokens` for each answer |
+| `RAG_LLM_TIMEOUT` | `30` | Request timeout in seconds (the SDK also retries 429/5xx/connection errors) |
 | `RAG_CHUNK_CHARS` / `RAG_CHUNK_OVERLAP` | `800` / `120` | Chunk size and overlap |
 | `RAG_THROTTLE` | `120/min` | Per-client rate limit |
 
