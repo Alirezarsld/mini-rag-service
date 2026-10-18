@@ -1,6 +1,8 @@
 from dataclasses import asdict
 from pathlib import Path
 
+from django.http import HttpResponse
+
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -12,6 +14,7 @@ from .serializers import DocumentCreateSerializer, QuerySerializer, document_to_
 
 
 MAX_UPLOAD_BYTES = 1_000_000
+INDEX_HTML = (Path(__file__).parent / "web" / "index.html").read_text(encoding="utf-8")
 
 
 def _index(title: str, text: str, source: str = "") -> Response:
@@ -25,6 +28,11 @@ def _index(title: str, text: str, source: str = "") -> Response:
         return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
     return Response(document_to_dict(selectors.get_document(document.id)),
                     status=status.HTTP_201_CREATED)
+
+
+def home(request):
+    """Single static page for trying the API from a browser."""
+    return HttpResponse(INDEX_HTML, content_type="text/html; charset=utf-8")
 
 
 class HealthView(APIView):

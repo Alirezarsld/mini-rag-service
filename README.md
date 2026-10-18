@@ -97,6 +97,8 @@ A: رمز عبور هرگز نباید به‌صورت متن ساده ذخیر�
 In the API the same answer comes back as JSON from `POST /api/ask/` with `answer`,
 `citations`, `sources`, `used_llm`, `usage` and `cached`.
 
+Open <http://localhost:8000/> for a one-page UI that calls `/api/ask/` and shows the cited passages.
+
 To use an LLM for answers: `export ANTHROPIC_API_KEY=...` (the model is set by `RAG_LLM_MODEL`).
 
 ### Semantic search (optional)

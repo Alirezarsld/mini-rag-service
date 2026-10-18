@@ -28,6 +28,12 @@ class ApiTests(APITestCase):
     def add(self, title, text):
         return self.client.post("/api/documents/", {"title": title, "text": text}, format="json")
 
+    def test_home_page_is_served(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text/html", response["Content-Type"])
+        self.assertIn(b"/api/ask/", response.content)
+
     def test_health(self):
         self.assertEqual(self.client.get("/api/health/").json(), {"status": "ok"})
 

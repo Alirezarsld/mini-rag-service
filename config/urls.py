@@ -1,3 +1,8 @@
 from django.urls import include, path
 
-urlpatterns = [path("api/", include("rag.urls"))]
+from rag.views import home
+
+urlpatterns = [
+    path("", home),
+    path("api/", include("rag.urls")),
+]
